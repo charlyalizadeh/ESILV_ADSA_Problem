@@ -2,6 +2,7 @@ from collections import deque
 import copy
 from graphviz import Digraph
 import random
+from Player import Player
 
 class NodePlayer:
     """Represent a node in the AVLTree class.
@@ -12,9 +13,9 @@ class NodePlayer:
     :param int height: The height of the node. (Default: 0)
     """
 
-    def __init__(self, id, value, left=None, right=None, height=0):
+    def __init__(self, player, left=None, right=None, height=0):
         self.id = id
-        self.value = value
+        self.player = player
         self.left = left
         self.right = right
         self.height = height
@@ -76,7 +77,7 @@ class NodePlayer:
         :rtype: bool
         """
 
-        return self.value < other.value
+        return self.player.score < other.player.score
 
     def __eq__(self, other):
         """Operator overloading of the equal operator.
@@ -86,7 +87,16 @@ class NodePlayer:
         :rtype: bool
         """
 
-        return self.value == other.value
+        return self.player.value == other.player.value
+
+    def get(self, key):
+        if key=="value":
+            return self.player.score
+        elif key=="id":
+            return self.player.id
+
+    def __getattr__(self, key):
+        return self.get(key)
 
 class AVLTree:
     """An AVL tree implementation.
@@ -95,10 +105,10 @@ class AVLTree:
     :param int nb_node: The total number of nodes in the tree.
     """
 
-    def __init__(self, nb_node=100):
+    def __init__(self, nb_node=0):
         self.nb_node = nb_node
         self.root_node = None
-        self.insert_nodes(NodePlayer(i,0) for i in range(nb_node))
+        self.insert_nodes(NodePlayer(Player(i,0)) for i in range(nb_node))
 
     def _left_rotation(self, node):
         """Apply a left rotation to a node.
@@ -149,7 +159,7 @@ class AVLTree:
         # Insertion
         if current_node is None:
             current_node = node
-        elif node.value < current_node.value:
+        elif node < current_node:
             current_node.left = self._insert_node(current_node.left, node)
         else:
             current_node.right = self._insert_node(current_node.right, node)
@@ -158,13 +168,13 @@ class AVLTree:
         ## Balance
         balance_factor = current_node.get_balance_factor()
         if balance_factor > 1:
-            if node.value < current_node.right.value:
+            if node < current_node.right:
                 current_node.right = self._right_rotation(current_node.right)
                 return self._left_rotation(current_node)
             else:
                 return self._left_rotation(current_node)
         elif balance_factor < -1:
-            if node.value < current_node.left.value:
+            if node < current_node.left:
                 return self._right_rotation(current_node)
             else:
                 current_node.left = self._left_rotation(current_node.left)
@@ -225,13 +235,13 @@ class AVLTree:
         child = current_node.get_largest_child()
         grand_child = child.get_largest_child()
         if balance_factor > 1:
-            if grand_child.value < child.value:
+            if grand_child < child:
                 current_node.right = self._right_rotation(current_node.right)
                 return self._left_rotation(current_node)
             else:
                 return self._left_rotation(current_node)
         elif balance_factor < -1:
-            if grand_child.value < child.value:
+            if grand_child < child:
                 return self._right_rotation(current_node)
             else:
                 current_node.left = self._left_rotation(current_node.left)
@@ -248,9 +258,7 @@ class AVLTree:
         """
 
         new_root = self._delete_node(self.root_node, key)
-        if new_root is not None:
-            self.root_node = new_root
-            self.nb_node -= 1
+        self.nb_node -= 1
 
     def delete_last(self, n=10):
         """Delete the n smallest value of the tree
@@ -264,6 +272,25 @@ class AVLTree:
             while node.left is not None:
                 node = node.left
             self.delete_node(node.value)
+
+    def _copy_nodes(self, node, new_AVLTree):
+        """Insert the all the values of the tree into antother AVLTree.
+
+        :param AVLTree new_AVLTree: The AVLTree where we insert the nodes.
+        """
+
+        if node is not None:
+            self._copy_nodes(node.left, new_AVLTree)
+            new_AVLTree.insert_node(NodePlayer(node.player))
+            self._copy_nodes(node.right, new_AVLTree)
+
+    def copy_nodes(self, new_AVLTree):
+        """Copy all nodes of `self` into a new AVLTree.
+
+        :param AVLTree new_AVLTree: The AVLTree where we insert the nodes.
+        """
+
+        self._copy_nodes(self.root_node, new_AVLTree)
 
     def set_values(self, values, traversal = "inorder"):
         """Set values of the tree in a defined order.
@@ -288,7 +315,7 @@ class AVLTree:
         s = deque()
         node = self.root_node
         index = 0
-        while s or node is not None:
+        while s or node is None:
             if node is not None:
                 s.append(node)
                 node = node.left
@@ -332,12 +359,14 @@ class AVLTree:
         :param bool parent: Display the parent of each key if True. (Default: False)
         :param bool balance: Display the balance factor of each key if True. (Default: False)
         :param bool index: Display the index of each key following a Breadth First search ordering if True. (Default: False)
-        :param bool adress: Display the address of each node if True.
+        :param bool adress: Display the address of each node if True. (Default: False)
         :param bool id: Display the id of each node if True. (Default: False)
         """
 
         if node is None:
             node = self.root_node
+        if node is None:
+            return None
         current_list = deque()
         current_list.append((node, None))
         index_nb = 0
@@ -370,7 +399,7 @@ class AVLTree:
             print("Height:", self.root_node.height)
             print("Number of nodes:", self.nb_node)
 
-    def plot_graphviz(self, data=True, node=None, sep='|', height=False, parent=False, balance=False, index=False, id=False):
+    def plot_graphviz(self, data=True, node=None, sep='|', height=False, parent=False, balance=False, index=False, adress=False, id=False):
         """Construct a graphviz Digraph of the tree.
 
         :param bool data: Display the height and the number of nodes of the tree if True. (Default: True)
@@ -380,6 +409,7 @@ class AVLTree:
         :param bool parent: Display the parent of each node if True. (Default: False)
         :param bool balance: Display the balance factor of each node if True. (Default: False)
         :param bool index: Display the index of each node following a Breadth First search ordering if True. (Default: False)
+        :param bool adress: Display the address of each node if True. (Default: False)
         :param bool id: Display the id of each node if True. (Default: False)
         """
 
@@ -402,8 +432,10 @@ class AVLTree:
                     label += '<b {}>\n'.format(current_node.get_balance_factor())
                 if index:
                     label += '<i {}>\n'.format(index_nb)
+                if adress:
+                    label += '<a {}>\n'.format(adress)
                 if id:
-                    label+= '<id {}>\n'.format(current_node.id)
+                    label += '<id {}>\n'.format(current_node.id)
                 if current_node.left is not None:
                     next_list.append((current_node.left, index_nb))
                 if current_node.right is not None:
