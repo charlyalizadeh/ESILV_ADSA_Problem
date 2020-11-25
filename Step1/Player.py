@@ -22,3 +22,6 @@ class Player:
         """
 
         return self.socre == other.score
+
+    def __str__(self):
+        return "ID: {0}, Score: {1}".format(self.id, self.score)

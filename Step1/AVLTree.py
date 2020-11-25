@@ -14,7 +14,6 @@ class NodePlayer:
     """
 
     def __init__(self, player, left=None, right=None, height=0):
-        self.id = id
         self.player = player
         self.left = left
         self.right = right
@@ -89,14 +88,14 @@ class NodePlayer:
 
         return self.player.value == other.player.value
 
-    def get(self, key):
-        if key=="value":
+    def __getattr__(self, key):
+        if key == "value":
             return self.player.score
-        elif key=="id":
+        elif key == "id":
             return self.player.id
 
-    def __getattr__(self, key):
-        return self.get(key)
+    def __str__(self):
+        return self.player.__str__()
 
 class AVLTree:
     """An AVL tree implementation.
@@ -106,7 +105,7 @@ class AVLTree:
     """
 
     def __init__(self, nb_node=0):
-        self.nb_node = nb_node
+        self.nb_node = 0
         self.root_node = None
         self.insert_nodes(NodePlayer(Player(i,0)) for i in range(nb_node))
 
@@ -150,7 +149,7 @@ class AVLTree:
         """Insert a node in the tree and balance it afterward.
 
         :param NodePlayer current_node: Parent node.
-        :param node: Key whose being inserted.
+        :param node: Key that is being inserted.
         :raise: TypeError if we try to insert a different type than self.root_node type or if the type of the tree doesn't support '<' operator.
         :return: A modified current_node with `node` inserted.
         :rtype: NodePlayer
@@ -184,7 +183,7 @@ class AVLTree:
     def insert_node(self, node):
         """Update some internal variables and call the insert method on node.
 
-        :param node: Value of the node whose being inserted.
+        :param node: Value of the node that is being inserted.
         :raise: TypeError if we try to insert a different type than self.root_node type or if the type of the tree doesn't support '<' operator.
         """
 
@@ -203,11 +202,20 @@ class AVLTree:
         for node in nodes:
             self.insert_node(node)
 
-    def _delete_node(self, current_node, key):
+    def insert_keys(self, keys):
+        """Construct NodePlayer instances with values in keys as score and insert them into the tree.
+
+        :param iterable keys: A list of integer representing the score of new nodes inserted.
+        """
+
+        for key in keys:
+            self.insert_node(NodePlayer(Player(0, key)))
+
+    def _delete_key(self, current_node, key):
         """Delete a node from an AVL Tree
 
         :param NodePlayer current_node: Parent node.
-        :param key: Value whose being deleted.
+        :param key: Value that is being deleted.
         :return: A modified current_node with `key` deleted or None.
         :rtype: NodePlayer or Nonde
         """
@@ -215,9 +223,9 @@ class AVLTree:
         if current_node is None:
             return current_node
         elif key < current_node.value:
-            current_node.left = self._delete_node(current_node.left, key)
+            current_node.left = self._delete_key(current_node.left, key)
         elif key > current_node.value:
-            current_node.right = self._delete_node(current_node.right, key)
+            current_node.right = self._delete_key(current_node.right, key)
         else:
             if current_node.left is None:
                 return current_node.right
@@ -228,36 +236,34 @@ class AVLTree:
                 while working_node.left is not None:
                     working_node = working_node.left
                 current_node.value = working_node.value
-                current_node.right = self._delete_node(current_node.right, working_node.value)
+                current_node.right = self._delete_key(current_node.right, working_node.value)
         current_node.update_height()
         balance_factor = current_node.get_balance_factor()
 
-        child = current_node.get_largest_child()
-        grand_child = child.get_largest_child()
         if balance_factor > 1:
-            if grand_child < child:
+            if current_node.right.get_balance_factor() < 0:
                 current_node.right = self._right_rotation(current_node.right)
                 return self._left_rotation(current_node)
             else:
                 return self._left_rotation(current_node)
         elif balance_factor < -1:
-            if grand_child < child:
+            if current_node.left.get_balance_factor() > 0:
+                current_node.left = self._left_rotation(current_node.left)
                 return self._right_rotation(current_node)
             else:
-                current_node.left = self._left_rotation(current_node.left)
                 return self._right_rotation(current_node)
         return current_node
 
-    def delete_node(self, key):
+    def delete_key(self, key):
         """Delete a key of an AVL Tree if exist.
 
-        :param key: The key whose being deleted.
+        :param key: The key that is deleted.
         :raise: AttributeError if key not in the tree. (But sometimes not, I don't know and don't have the force to search why)
         .. todo::
         Check if key is in the tree
         """
 
-        new_root = self._delete_node(self.root_node, key)
+        self.root_node = self._delete_key(self.root_node, key)
         self.nb_node -= 1
 
     def delete_last(self, n=10):
@@ -267,11 +273,12 @@ class AVLTree:
         ..todo:
             Optimize this function, indeed we can avoid traverse all the left branch every time.
         """
+
         for i in range(n):
             node = self.root_node
             while node.left is not None:
                 node = node.left
-            self.delete_node(node.value)
+            self.delete_key(node.value)
 
     def _copy_nodes(self, node, new_AVLTree):
         """Insert the all the values of the tree into antother AVLTree.
@@ -281,7 +288,7 @@ class AVLTree:
 
         if node is not None:
             self._copy_nodes(node.left, new_AVLTree)
-            new_AVLTree.insert_node(NodePlayer(node.player))
+            new_AVLTree.insert_node(NodePlayer(Player(node.player.id, node.player.score)))
             self._copy_nodes(node.right, new_AVLTree)
 
     def copy_nodes(self, new_AVLTree):
@@ -292,7 +299,7 @@ class AVLTree:
 
         self._copy_nodes(self.root_node, new_AVLTree)
 
-    def set_values(self, values, traversal = "inorder"):
+    def add_values(self, values, traversal = "inorder"):
         """Set values of the tree in a defined order.
 
         Set the values of the tree. The length of `values` doesn't need to be equal to the number of nodes in the tree.
@@ -302,11 +309,11 @@ class AVLTree:
         """
 
         if traversal == "inorder":
-            self._set_values_inorder(values)
+            self._add_values_inorder(values)
         elif traversal == "preorder":
-            self._set_values_preorder(values)
+            self._add_values_preorder(values)
 
-    def _set_values_inorder(self, values):
+    def _add_values_inorder(self, values):
         """Set the values of the tree to values in an in-order traversal.
 
         :param values: A list of new values of the tree nodes.
@@ -315,45 +322,23 @@ class AVLTree:
         s = deque()
         node = self.root_node
         index = 0
-        while s or node is None:
+        while s or node is not None:
             if node is not None:
                 s.append(node)
                 node = node.left
             else:
                 node = s.pop()
-                node.value = values[index]
+                node.player.score += values[index] # Something wrong with this. Need to clean __getattr__ and __setattr__ in NodePlayer.
                 index += 1
                 if index >= len(values):
                     break
                 node = node.right
 
-    def _set_values_preorder(self, values):
-        """Set the values of the tree to values in an pre-order traversal.
-
-        :param values: A list of new values of the tree nodes.
-        """
-
-        if self.root_node is None:
-            return None
-        s = deque()
-        s.append(self.root_node)
-        index = 0
-        while s:
-            node = s.pop()
-            node.value = values[index]
-            index += 1
-            if index >= len(values):
-                break
-            if node.right is not None:
-                s.append(node.right)
-            if node.left is not None:
-                s.append(node.left)
-
     def display_cli(self, data=True, node=None, sep='|', height=False, parent=False, balance=False, index=False, adress=False, id=False):
         """Display the tree in the console.
 
         :param bool data: Display the height and the number of nodes of the tree if True. (Default: True)
-        :param NodePlayer node: The node whose subtree is displayed. (Default: None)
+        :param NodePlayer node: The node which subtree is displayed. (Default: None)
         :param str sep: String chosen to seprate nodes. (Default: '|')
         :param bool height: Display the height of each key if True. (Default: False)
         :param bool parent: Display the parent of each key if True. (Default: False)
@@ -447,3 +432,36 @@ class AVLTree:
             current_list = next_list.copy()
             next_list.clear()
         return dot
+
+    def __getattr__(self, key):
+        if key == "nb_player":
+            return self.nb_node
+
+    def _compute_nb_node(self):
+        s = deque()
+        nb = 0
+        node = self.root_node
+        while s or node is not None:
+            if node is not None:
+                s.append(node)
+                node = node.left
+            else:
+                node = s.pop()
+                nb += 1
+                node = node.right
+        return nb
+
+
+    def __str__(self):
+        descrition = ""
+        s = deque()
+        node = self.root_node
+        while s or node is not None:
+            if node is not None:
+                s.append(node)
+                node = node.left
+            else:
+                node = s.pop()
+                descrition += node.__str__() + '\n'
+                node = node.right
+        return descrition

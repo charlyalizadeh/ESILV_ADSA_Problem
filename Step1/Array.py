@@ -13,16 +13,16 @@ class Array:
 
         self.size -= n
 
-    def set_values(self, values):
+    def add_values(self, values):
         """Set the values of the array to values.
 
         :param iterable values: New values of the array.
         """
 
         for i in range(self.size):
-            self._array[i] = values[i]
             if i >= len(values):
                 break
+            self._array[i].score += values[i]
 
     def sort(self, alg="merge"):
         """Sort the array with the specified algorithm.
@@ -31,8 +31,7 @@ class Array:
         """
 
         if alg == "merge":
-            print("merge")
-            self._array = sorted(self._array)
+            self._array = sorted(self._array, reverse=True)
         elif alg == "couting":
             self._array = self.counting_sort(self._array)
 
@@ -45,17 +44,17 @@ class Array:
         """
 
         max_node = max(self._array)
-        count = [0] * (max_node.value + 1)
+        count = [0] * (max_node.score + 1)
         for node in array:
-            count[node.value] += 1
+            count[node.score] += 1
         total = 0
-        for i in range(max_node.value + 1):
+        for i in range(max_node.score, -1, -1):
             count[i], total = total, count[i] + total
 
         output = [0] * len(self._array)
         for node in self._array:
-            output[count[node.value]] = node
-            count[node.value] += 1
+            output[count[node.score]] = node
+            count[node.score] += 1
         return output
 
     def display_cli(self):
@@ -64,3 +63,24 @@ class Array:
         for node in self._array:
             print(node.value, end = '-')
         print()
+
+    def __getattr__(self, key):
+        if key == "nb_player":
+            return self.size
+
+    def __iter__(self):
+        return self._array.__iter__()
+
+    def __next__(self):
+        return self._array.__next__()
+
+    def __str__(self):
+        descrition = ""
+        index = 0
+        print(self.size)
+        for node in self._array:
+            descrition += node.__str__() + "\n"
+            index += 1
+            if index == self.size:
+                break
+        return descrition
