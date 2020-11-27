@@ -28,6 +28,7 @@ def get_suspects(adjacency_matrix, dead_players):
     :return: A dictionary containing the suspect with the number of dead players they met.
     :rtype: dict
     """
+
     suspects = {}
     for dead_player in dead_players:
         for i in range(len(adjacency_matrix[dead_player])):
