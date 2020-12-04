@@ -11,6 +11,8 @@ class Graph():
     def __init__(self, nb_nodes=0):
         self.adj_matrix = np.ones((nb_nodes, nb_nodes)) * inf
         self.label = [i for i in range(nb_nodes)]
+        for i in range(nb_nodes):
+            self.adj_matrix[i, i] = 0
 
     def get_edges(self, weight=True):
         """Get the edges from the graph.
