@@ -1,2 +1,2 @@
-from .Step1 import start_step1
+from .game import Game
 

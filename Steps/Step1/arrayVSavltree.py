@@ -1,4 +1,4 @@
-from .GameSimulation import Game
+from .gameSimulation import Game
 import timeit
 
 def benchmark(repeat = 1000):

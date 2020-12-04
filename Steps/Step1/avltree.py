@@ -2,7 +2,7 @@ from collections import deque
 import copy
 from graphviz import Digraph
 import random
-from .Player import Player
+from .player import Player
 
 class NodePlayer:
     """Represent a node in the AVLTree class.
@@ -96,6 +96,7 @@ class NodePlayer:
 
     def __str__(self):
         return self.player.__str__()
+
 
 class AVLTree:
     """An AVL tree implementation.
@@ -390,7 +391,7 @@ class AVLTree:
         :param bool data: Display the height and the number of nodes of the tree if True. (Default: True)
         :param NodePlayer node: The node whose subtree is displayed. (Default: None)
         :param str sep: String chosen to seprate nodes. (Default: '|')
-        :param bool height: Display the height of each ndeo if True. (Default: False)
+        :param bool height: Display the height of each node if True. (Default: False)
         :param bool parent: Display the parent of each node if True. (Default: False)
         :param bool balance: Display the balance factor of each node if True. (Default: False)
         :param bool index: Display the index of each node following a Breadth First search ordering if True. (Default: False)
@@ -451,7 +452,6 @@ class AVLTree:
                 node = node.right
         return nb
 
-
     def __str__(self):
         descrition = ""
         s = deque()
@@ -465,3 +465,6 @@ class AVLTree:
                 descrition += node.__str__() + '\n'
                 node = node.right
         return descrition
+
+    def __len__(self):
+        return self.nb_node

@@ -1,4 +1,4 @@
-from Player import Player
+from .player import Player
 
 class Array:
     def __init__(self, size=0):
@@ -84,3 +84,6 @@ class Array:
             if index == self.size:
                 break
         return descrition
+
+    def __len__(self):
+        return self.size

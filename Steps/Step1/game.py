@@ -1,15 +1,16 @@
-from AVLTree import AVLTree
-from Array import Array
+from .avltree import AVLTree
+from .array import Array
 import random
 
 class Game:
-    def __init__(self, datastructure="Array"):
+    def __init__(self, datastructure="Array", nb_players=100):
+        self.nb_players = nb_players
         self.datastructure = datastructure
-        self.round = 1
         if self.datastructure == "Array":
-            self.players = Array(100)
+            self.players = Array(nb_players)
         else:
-            self.players = AVLTree(100)
+            self.players = AVLTree(nb_players)
+        self.round = 0
 
     def delete_last_player(self, n=10):
         """Delete the n last player from the game.
@@ -64,21 +65,17 @@ class Game:
         nb_team = int(self.players.nb_player/10)
         scores = []
         for i in range(nb_team):
-            scores.extend(self.generate_random_score())
+            scores.extend(self._generate_random_score())
         if rand:
             random.shuffle(scores)
         self.players.add_values(scores)
         self.round += 1
 
-    def display_players(self):
-        print(self.players)
-
-    def start(self):
-        for i in range(3):
-            self.simulate_game()
-
-        self.sort_players()
-        while self.players.nb_player > 10:
-            self.simulate_game(True)
-            self.sort_players()
-            self.delete_last_player()
+    def reinitilize(self, nb_players=None):
+        if nb_players is None:
+            nb_players = self.nb_players
+        if self.datastructure == "Array":
+            self.players = Array(nb_players)
+        else:
+            self.players = AVLTree(nb_players)
+        self.log = []

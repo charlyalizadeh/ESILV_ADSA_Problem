@@ -1,11 +1,11 @@
-#!/usr/bin/env python3
 import numpy as np
 from math import inf
 from copy import copy
 import networkx as nx
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-from .UnionFind import UnionFind
+import pandas as pd
+from .unionfind import UnionFind
 
 class Graph():
     def __init__(self, nb_nodes=0):
@@ -100,6 +100,17 @@ class Graph():
         for i in range(len(edges)):
             self.add_edge(edges[i], weights[i])
 
+    def add_vertex(self, label=""):
+        if self.adj_matrix.shape[0] == 0:
+                self.adj_matrix = np.array([0])
+        elif self.adj_matrix.shape[0] == 1:
+            self.adj_matrix = np.array([[0, inf], [inf, 0]])
+        else:
+            self.adj_matrix = np.vstack((self.adj_matrix, np.ones(self.adj_matrix.shape[1]) * inf))
+            self.adj_matrix = np.column_stack((self.adj_matrix, np.ones(self.adj_matrix.shape[0]) * inf))
+            shape0, shape1 = self.adj_matrix.shape
+            self.adj_matrix[shape0 - 1, shape1 - 1] = 0
+
     def set_label_node(self, node, label):
         """Set the label of a node.
 
@@ -111,19 +122,69 @@ class Graph():
             raise ValueError("`node` doesn't exist in the current graph.")
         self.label[node] = label
 
-    def plot(self, label_as_index=False, position=None):
+    def _read_coordinates(self, filename):
+        file = open(filename, "r")
+        coordinates = {}
+        index = 0
+        for line in file.readlines():
+            line = line.split(",")
+            coordinates[index] = [float(line[0]), -float(line[1])]
+            index += 1
+        return coordinates
+
+    def _import_from_file_specific_index(self, lines):
+        index = 1
+        if "INDEX" in lines[0]:
+            while not (lines[index].rstrip("\n").isspace() or lines[index] == "\n"):
+                self.add_vertex()
+                self.label.append(lines[index].rstrip("\n"))
+                index += 1
+        index += 1
+        for line in lines[index:]:
+            line = line.split(",")
+            self.add_edge(line[:2], weight=int(line[2].strip("\n")), by="label")
+
+    def _import_from_file(self, lines):
+        for line in lines:
+            line = line.split(",")
+            for label in line[:2]:
+                if not label in self.label:
+                    self.add_vertex()
+                    self.label.append(label)
+            self.add_edge(line[:2], weight=int(line[2].strip("\n")), by="label")
+
+    def import_from_file(self, filename):
+        """Import a graph from a file. (!! Doesn't support same label for two different vertices. !!)
+
+        :param str filename: the name of the file containing the graph data.
+        """
+
+        self.adj_matrix = np.array([])
+        self.label.clear()
+        with open(filename, "r") as file:
+            lines = file.readlines()
+            if lines[0].rstrip("\n") == "INDEX":
+                self._import_from_file_specific_index(lines)
+            else:
+                self._import_from_file(lines)
+
+    def plot(self, label_as_index=False, position=None, filepos=None):
         """Plot the graph in a matplotlib graph.
 
         :param bool label_as_index: Display the index node instead of the label if True. (Default False)
         :param iterable position: The position for the
         """
-
         G = nx.Graph()
         G.add_nodes_from([(i , {"label":self.label[i]}) for i in range(len(self.label))])
         edges = self.get_edges()
         for edge in edges:
             G.add_edge(edge[0], edge[1], weight = edge[2])
-        pos = nx.planar_layout(G) if position is None  else position
+        if filepos is not None:
+            pos = self._read_coordinates(filepos)
+        elif position is None:
+            pos = position
+        else:
+            pos = nx.planar_layout(G) if position is None  else position
         nx.draw(G, pos, with_labels = False, font_weight = 'bold')
         nx.draw_networkx_labels(G, pos, dict(zip(range(len(self.label)),self.label)))
         labels = nx.get_edge_attributes(G, 'weight')
@@ -164,6 +225,18 @@ class Graph():
                 s.add(edge)
                 disjoint_set.union(root1, root2)
         return s, sum([e[2] for e in s])
+
+    def floydWarshall(self):
+        """Return the minimal distances between every node.
+        :param matrix: Matrix of adjacency of a graph.
+        :return: Matrix of minimal distances between every node.
+        """
+        self.dist = copy(self.adj_matrix)
+        for k in range(len(self.adj_matrix)):
+            for i in range(len(self.adj_matrix)):
+                for j in range(len(self.adj_matrix)): 
+                    self.dist[i][j] = min(self.dist[i][j], self.dist[i][k] + self.dist[k][j])
+        return self.dist
 
     def __str__(self):
         return self.adj_matrix.__str__()
