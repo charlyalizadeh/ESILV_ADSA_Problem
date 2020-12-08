@@ -1,7 +1,7 @@
 # Advanced Data Structures & Algorithms
 
-[![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
-[![GitHub contributors](https://img.shields.io/github/contributors/Naereen/StrapDown.js.svg)](https://GitHub.com/Naereen/StrapDown.js/graphs/contributors/)
+[![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/charlyalizadeh/ESILV_ADSA_Problem/blob/master/LICENSE)
+![GitHub contributors](https://img.shields.io/github/contributors/Naereen/StrapDown.js.svg)
 
 ## Prerequisites
 
