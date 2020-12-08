@@ -1,3 +1,3 @@
-import Graph
-import Step1
-import Step2
+from .Graph.graph import Graph
+from .Step1 import *
+from .Step2 import *

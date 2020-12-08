@@ -233,6 +233,7 @@ class Graph():
         :param matrix: Matrix of adjacency of a graph.
         :return: Matrix of minimal distances between every node.
         """
+
         self.dist = copy(self.adj_matrix)
         for k in range(len(self.adj_matrix)):
             for i in range(len(self.adj_matrix)):

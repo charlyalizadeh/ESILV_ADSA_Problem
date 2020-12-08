@@ -45,7 +45,7 @@ class Game:
         self.players.copy_nodes(new_players)
         self.players = new_players
 
-    def generate_random_score(self):
+    def _generate_random_score(self):
         """Generate random finale scores of an Among Us game.
 
         Generate random scores. For now the scores are not feasible with the rules.
@@ -79,3 +79,6 @@ class Game:
         else:
             self.players = AVLTree(nb_players)
         self.log = []
+
+    def get_nb_players(self):
+        return len(self.players)
