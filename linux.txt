@@ -1,2 +1,2 @@
 -r requirements.txt
-curses>=2.04
+curses==2.04
