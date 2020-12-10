@@ -74,7 +74,7 @@ class ADSAApp():
             game.sort_players()
         
         last_players = game.players.__str__().split('\n')
-        for player in last_players:
+        for player in last_players[::-1]:
             screen_game.insert_line(player)
         screen_game.start(self.app)
 
@@ -116,7 +116,6 @@ class ADSAApp():
         graph.kruskal(inplace=True)
         graph.plot(filepos=pos_path)
         plt.show()
-
 
     def _get_coord_centered(self, height, width, texts):
         max_length = len(max(texts, key=len))
