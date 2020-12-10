@@ -464,7 +464,7 @@ class AVLTree:
                 node = s.pop()
                 descrition += node.__str__() + '\n'
                 node = node.right
-        return descrition
+        return descrition[:-1]
 
     def __len__(self):
         return self.nb_node

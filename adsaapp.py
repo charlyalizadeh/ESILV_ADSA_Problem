@@ -74,8 +74,10 @@ class ADSAApp():
             game.sort_players()
         
         last_players = game.players.__str__().split('\n')
-        for player in last_players[::-1]:
-            screen_game.insert_line(player)
+        if datastructure == "AVLTree":
+            last_players = last_players[::-1]
+        for i in range(len(last_players)):
+            screen_game.insert_line(f"{i + 1}. {last_players[i]}")
         screen_game.start(self.app)
 
     def _find_impostors(self, filepath):

@@ -83,7 +83,7 @@ class Array:
             index += 1
             if index == self.size:
                 break
-        return descrition
+        return descrition[:-1]
 
     def __len__(self):
         return self.size

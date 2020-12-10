@@ -34,12 +34,12 @@ class FakeScreen(Widget):
     def insert_line(self, line):
         if len(line) > self.longest_string:
             self.longest_string = len(line)
-        if len(self.lines) > self.dim[0] - 1:
+        if len(self.lines) >= self.dim[0] - 1:
             self.offsets[0] += 1
         self.lines.append(line)
 
     def _go_up(self):
-        if len(self.lines) - self.offsets[0] > self.dim[0]:
+        if len(self.lines) - self.offsets[0] >= self.dim[0]:
             self.offsets[0] += 1
 
     def _go_down(self):
