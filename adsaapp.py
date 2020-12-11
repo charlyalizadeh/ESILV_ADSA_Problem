@@ -1,10 +1,15 @@
-from Interface import *
-from Steps import *
+from interface import *
+from steps import *
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
 class ADSAApp():
+    """The class managing the interface for the project. Not the cleanest code I wrote but it does the work and nothing else.
+
+    :param App app: The curses app wrapper where we will draw the interface.
+    """
+
     def __init__(self, app = None):
         if app is None:
             app = App()
@@ -33,7 +38,7 @@ class ADSAApp():
         elif index == 3:
             self._get_distance("data/graph_crewmates.txt", "data/graph_impostors.txt")
         elif index == 4:
-            self._display_step4()
+            self.display_step4()
         elif index == 5:
             return False
         return True
@@ -112,10 +117,20 @@ class ADSAApp():
             screen_game.insert_line(l)
         screen_game.start(self.app)
 
-    def _display_step4(self, adjmatrix_path="data/graph_crewmates.txt", pos_path="data/coordinates.txt"):
+    def display_step4(self, adjmatrix_path="data/graph_crewmates.txt", pos_path="data/coordinates.txt"):
         graph = Graph(0)
         graph.import_from_file(adjmatrix_path)
-        graph.kruskal(inplace=True)
+        paths = graph.get_all_hamilton_path()
+        height, width = self.app.stdscr.getmaxyx()
+        screen_game = FakeScreen([5, 5], [height - 10, width - 10])
+        screen_game.insert_line(f"Graph with {graph.nb_vertex} vertices and {graph.nb_edge} edges.")
+        screen_game.insert_line(f"This graph contains {len(paths)} hamilton paths.")
+        shortest_path = graph.get_shortest_path(paths)
+        screen_game.insert_line(f"Shortest path -> {shortest_path}")
+        screen_game.insert_line("Press the escape key to display the shortest path...")
+        screen_game.start(self.app)
+
+        graph.set_path(shortest_path)
         graph.plot(filepos=pos_path)
         plt.show()
 

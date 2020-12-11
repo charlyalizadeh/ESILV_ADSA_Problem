@@ -1,6 +1,8 @@
 from .player import Player
 
 class Array:
+    """Wrapper around the list type."""
+
     def __init__(self, size=0):
         self.size = size
         self._array = [Player(i, 0) for i in range(self.size)]

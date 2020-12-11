@@ -16,7 +16,6 @@ class Menu(Widget):
         self.select = 1 if self.title else 0
         self.function = lambda x : None
 
-
     def _go_up(self):
         if self.select == (1 if self.title else 0):
             self.select = len(self.texts) - 1
@@ -32,13 +31,20 @@ class Menu(Widget):
     def bind(self, f):
         self.function = f
 
-    def draw(self, app):
-        super().draw(app)
+    def _draw_border(self, app):
+        pass
+
+    def _draw_text(self, app):
         for i in range(len(self.texts)):
             if i == self.select:
                 app.stdscr.addstr(self.coord[0] + i, self.coord[1], self.texts[i], curses.A_STANDOUT)
             else:
                 app.stdscr.addstr(self.coord[0] + i, self.coord[1], self.texts[i])
+
+    def draw(self, app):
+        super().draw(app)
+        self._draw_border(app)
+        self._draw_text(app)
 
     def update(self, app):
         c = app.stdscr.getch()

@@ -1,8 +1,14 @@
 from .avltree import AVLTree
-from .array import Array
+from .arraywrapper import Array
 import random
 
 class Game:
+    """Implementation of the Game for the step 1
+    
+    :param str datastructure: The datastructure type to use for the game.
+    :param int nb_players: The number of players in the game.
+    """
+
     def __init__(self, datastructure="Array", nb_players=100):
         self.nb_players = nb_players
         self.datastructure = datastructure
@@ -70,15 +76,6 @@ class Game:
             random.shuffle(scores)
         self.players.add_values(scores)
         self.round += 1
-
-    def reinitilize(self, nb_players=None):
-        if nb_players is None:
-            nb_players = self.nb_players
-        if self.datastructure == "Array":
-            self.players = Array(nb_players)
-        else:
-            self.players = AVLTree(nb_players)
-        self.log = []
 
     def get_nb_players(self):
         return len(self.players)

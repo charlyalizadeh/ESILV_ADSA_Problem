@@ -1,6 +1,8 @@
 import pandas as pd
 
 class UnionFind:
+    """Disjoint-set data structure implementation """
+
     def __init__(self):
         self.parents = []
         self.index_map = {}
@@ -27,13 +29,10 @@ class UnionFind:
     def union(self, node1, node2):
         root1 = self.find(node1)
         root2 = self.find(node2)
-
         if root1 == root2:
             return None
-
         if self.size[root1] < self.size[root2]:
             root1, root2 = root2, root1
-
         self.parents[root2] = root1
         self.size[root1] += self.size[root2]
 

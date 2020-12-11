@@ -22,9 +22,6 @@ class App:
         curses.echo()
         curses.endwin()
 
-
-
-
 class Widget:
     def __init__(self, coord = [0, 0], id=None):
         self.coord = coord
@@ -38,4 +35,3 @@ class Widget:
 
     def start(self, app):
         pass
-

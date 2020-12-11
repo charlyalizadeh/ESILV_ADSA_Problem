@@ -439,6 +439,8 @@ class AVLTree:
             return self.nb_node
 
     def _compute_nb_node(self):
+        """Method to compute the number of nodes inside the tree."""
+
         s = deque()
         nb = 0
         node = self.root_node

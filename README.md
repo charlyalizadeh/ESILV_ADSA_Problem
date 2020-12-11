@@ -39,3 +39,6 @@ Downloading [Visual Studio Community](https://visualstudio.microsoft.com/fr/vs/c
 
 * [ ] Document the code
 * [X] Add `requirements.txt`
+* [ ] Restructure the ADSAApp class into multiple smaller classes
+* [ ] List and propose to display all the Hamilton path
+* [ ] Add some bonus features
