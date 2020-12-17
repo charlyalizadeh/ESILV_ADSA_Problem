@@ -105,16 +105,34 @@ class ADSAApp():
     def _get_distance(self, filepath_crewmates, filepath_impostors, position=None):
         height, width = self.app.stdscr.getmaxyx()
         screen_game = FakeScreen([5, 5], [height - 10, width - 10])
-        names = ["Reactor", "UpperE", "LowerE", "Security", "Electrical", "Medbay", "Storage", "Cafetaria", "Unnamed1", "Unnamed2", "O2", "Weapons", "Sield", "Navigations"]
-        graph = Graph(0)
-        graph.import_from_file(filepath_crewmates)
-        distances = graph.floydWarshall()
-        df_crewmates = pd.DataFrame(data=distances, index = names, columns = names)
         pd.set_option('display.max_rows', 500)
         pd.set_option('display.max_columns', 500)
+        pd.set_option('display.expand_frame_repr', False)
+
+        names = ["Reactor", "UpperE", "LowerE", "Security", "Electrical", "Medbay", "Storage", "Cafetaria", "Unnamed1", "Unnamed2", "O2", "Weapons", "Shield", "Navigations"]
+        graph_crewmates = Graph(0)
+        graph_crewmates.import_from_file(filepath_crewmates)
+        distances = graph_crewmates.floydWarshall()
+        df_crewmates = pd.DataFrame(data=distances, index = names, columns = names)
         lines = df_crewmates.__str__().split("\n")
+        screen_game.insert_line("CREWMATES")
         for l in lines:
             screen_game.insert_line(l)
+
+
+        names = ["Reactor", "UpperE", "LowerE", "Security", "Electrical", "Medbay", "Storage", "Cafetaria", "Unnamed1", "Unnamed2", "O2", "Weapons", "Shield", "Navigations", "CorridorW"]
+        graph_impostors = Graph(0)
+        graph_impostors.import_from_file(filepath_impostors)
+        distances = graph_impostors.floydWarshall()
+        df_impostors = pd.DataFrame(data=distances, index = names, columns = names)
+        lines = df_impostors.__str__().split("\n")
+        screen_game.insert_line("")
+        screen_game.insert_line("IMPOSTORS")
+        for l in lines:
+            screen_game.insert_line(l)
+
+
+            
         screen_game.start(self.app)
 
     def display_step4(self, adjmatrix_path="data/graph_crewmates.txt", pos_path="data/coordinates.txt"):
