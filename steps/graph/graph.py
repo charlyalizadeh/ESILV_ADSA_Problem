@@ -1,13 +1,10 @@
-from math import inf, factorial
+from math import inf
 import numpy as np
-import pandas as pd
 from copy import copy
 import networkx as nx
-import matplotlib.pyplot as plt
-import matplotlib as mpl
 from .unionfind import UnionFind
-from collections import deque
 from utils.utils import read_coordinates
+
 
 class Graph():
     """
@@ -51,7 +48,7 @@ class Graph():
         neighbors = []
         for i in range(self.nb_vertex):
             if self.are_neighbors(vertex, i) and vertex != i:
-               neighbors.append(i)
+                neighbors.append(i)
         return neighbors
 
     def are_neighbors(self, vertex1, vertex2):
@@ -128,7 +125,7 @@ class Graph():
         """
 
         if self.nb_vertex == 0:
-                self.adj_matrix = np.array([0])
+            self.adj_matrix = np.array([0])
         elif self.nb_vertex == 1:
             self.adj_matrix = np.array([[0, inf], [inf, 0]])
         else:
@@ -164,7 +161,7 @@ class Graph():
         for line in lines:
             line = line.split(",")
             for label in line[:2]:
-                if not label in self.label:
+                if label not in self.label:
                     self.add_vertex()
                     self.label.append(label)
             self.add_edge(line[:2], weight=int(line[2].strip("\n")), by="label")
@@ -192,19 +189,21 @@ class Graph():
         """
 
         G = nx.Graph()
-        G.add_nodes_from([(i, {"label":self.label[i]}) for i in range(len(self.label))])
+        G.add_nodes_from([(i, {"label": self.label[i]}) for i in range(len(self.label))])
         edges = self.get_edges()
         for edge in edges:
-            G.add_edge(edge[0], edge[1], weight = edge[2])
+            G.add_edge(edge[0], edge[1], weight=edge[2])
         if filepos is not None:
             pos = read_coordinates(filepos)
         elif position is not None:
             pos = position
         else:
-            pos = nx.planar_layout(G) if position is None  else position
-        nx.draw(G, pos, with_labels = label_as_index, font_weight = 'bold')
+            pos = nx.planar_layout(G) if position is None else position
+        nx.draw(G, pos, with_labels=label_as_index, font_weight='bold')
         if not label_as_index:
-            nx.draw_networkx_labels(G, pos, dict(zip(range(len(self.label)), self.label)))
+            nx.draw_networkx_labels(G,
+                                    pos,
+                                    dict(zip(range(len(self.label)), self.label)))
         labels = nx.get_edge_attributes(G, 'weight')
         nx.draw_networkx_edge_labels(G, pos, edge_labels=labels)
 
@@ -253,7 +252,7 @@ class Graph():
         self.dist = copy(self.adj_matrix)
         for k in range(len(self.adj_matrix)):
             for i in range(len(self.adj_matrix)):
-                for j in range(len(self.adj_matrix)): 
+                for j in range(len(self.adj_matrix)):
                     self.dist[i][j] = min(self.dist[i][j], self.dist[i][k] + self.dist[k][j])
         return self.dist
 
@@ -272,8 +271,8 @@ class Graph():
             if weight < best_weight:
                 best_weight = weight
                 best_path = path
-        return path
-    
+        return best_path, best_weight
+
     def get_path_weight(self, path):
         """Compute the weight of `path`.
 
@@ -284,23 +283,50 @@ class Graph():
 
         weight = 0
         for i in range(len(path) - 1):
-            weight += self.adj_matrix[i, i + 1]
+            weight += self.adj_matrix[path[i], path[i + 1]]
         return weight
 
-    def get_shortest_hamilton_path(self):
+    def get_shortest_path_all_hamilton_path(self):
+        """Compute all the shortest Hamtilon paths in the graph.
+
+        :param iterable starting_vertex: An iterable containing the starting vertices.
+        :param iterable ending_vertex: An iterable containing the ending vertices.
+        :return: The shortest path if such a path exists, None otherwise.
+        :rtype: list or None
+        """
+
+        return self.get_shortest_hamilton_path(range(self.nb_vertex), range(self.nb_vertex))
+
+    def get_shortest_hamilton_path(self, starting_vertex=None, ending_vertex=None):
         """Compute the shortest hamilton path such a path exists."""
 
-        all_path = self.get_all_hamilton_path()
+        all_path = self.get_hamilton_path(starting_vertex, ending_vertex)
         if not all_path:
             return None
         return self.get_shortest_path(all_path)
 
     def get_all_hamilton_path(self):
-        """Compute all the possible hamilton paths."""
+        """Compute all the possible hamilton paths.
+
+        :return: A list containing all the Hamilton paths in the graph.
+        :rtype: list
+        """
+
+        return self.get_hamilton_path(range(self.nb_vertex), range(self.nb_vertex))
+
+    def get_hamilton_path(self, starting_vertex=None, ending_vertex=None):
+        """Compute all the hamilton starting in `starting_vertex` and ending in `ending_vertex`.
+
+        :param iterable starting_vertex: An iterable containing the starting vertices.
+        :param iterable ending_vertex: An iterable containing the ending vertices.
+        :return: An list containing all the valid Hamilton paths.
+        :rtype: list
+        """
 
         all_path = []
-        for i in range(self.nb_vertex):
+        for i in starting_vertex:
             self._backtrack_hamilton([i], all_path)
+        all_path = [path for path in all_path if path[-1] in ending_vertex]
         return all_path
 
     def _backtrack_hamilton(self, path, all_path):
@@ -318,7 +344,6 @@ class Graph():
             new_path = path + [n]
             self._backtrack_hamilton(new_path, all_path)
 
-
     def set_path(self, vertices):
         """Convert the graph to a path graph
 
@@ -335,9 +360,7 @@ class Graph():
         if key == "nb_vertex":
             return self.adj_matrix.shape[0]
         if key == "nb_edge":
-            return len(self.get_edges()) # TODO: more efficient solution.
+            return len(self.get_edges())  # TODO: more efficient solution.
 
     def __str__(self):
         return self.adj_matrix.__str__()
-
-
