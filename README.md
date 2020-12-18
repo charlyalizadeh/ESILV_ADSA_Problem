@@ -15,7 +15,7 @@
 $ git clone https://github.com/charlyalizadeh/ESILV_ADSA_Problem  
 $ cd ESILV_ADSA_Problem/
 $ pip install -r linux.txt
-$ python3 ESILV_ADSA_Problem/start.py
+$ python3 start.py
 ```
 
 ### Windows
@@ -26,7 +26,7 @@ To clone a Github repository from windows you can use [Git for Windows](https://
 $ git clone https://github.com/charlyalizadeh/ESILV_ADSA_Problem  
 $ cd ESILV_ADSA_Problem/
 $ pip install -r windows.txt
-$ python3 ESILV_ADSA_Problem/start.py
+$ python3 start.py
 ```
 
 ## Troubleshooting
@@ -40,6 +40,6 @@ Downloading [Visual Studio Community](https://visualstudio.microsoft.com/fr/vs/c
 * [ ] Document the code
 * [X] Add `requirements.txt`
 * [ ] Restructure the ADSAApp class into multiple smaller classes
-* [ ] List and propose to display all the Hamilton path
+* [X] Propose to choose the start and the end for the Hamilton path
 * [ ] Add some bonus features
 * [ ] Change some bad variable name
