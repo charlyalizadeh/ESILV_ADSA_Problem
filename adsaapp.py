@@ -275,13 +275,13 @@ class Step4App():
         if choice == self.graph.nb_vertex + 1:
             self.src_vertex = range(self.graph.nb_vertex)
         else:
-            self.src_vertex = [choice]
+            self.src_vertex = [choice - 1]
 
     def menu_dst_vertex(self, choice):
         if choice == self.graph.nb_vertex + 1:
             self.dst_vertex = range(self.graph.nb_vertex)
         else:
-            self.dst_vertex = [choice]
+            self.dst_vertex = [choice - 1]
 
     def _get_coord_centered(self, height, width, texts):
         max_length = len(max(texts, key=len))
