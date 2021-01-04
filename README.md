@@ -11,9 +11,12 @@
 
 ### Linux/MacOS
 
-```
+Clone this repos
+```bash
 $ git clone https://github.com/charlyalizadeh/ESILV_ADSA_Problem  
 $ cd ESILV_ADSA_Problem/
+$ python3 -m venv .venv
+$ source .venv/bin/activate # Use the activate script corresponding to your shell
 $ pip install -r linux.txt
 $ python3 start.py
 ```
@@ -22,9 +25,11 @@ $ python3 start.py
 
 To clone a Github repository from windows you can use [Git for Windows](https://gitforwindows.org/)
 
-```
+```bash
 $ git clone https://github.com/charlyalizadeh/ESILV_ADSA_Problem  
 $ cd ESILV_ADSA_Problem/
+$ python3 -m venv .venv
+$ .venv/Scripts/activate.bat
 $ pip install -r windows.txt
 $ python3 start.py
 ```
